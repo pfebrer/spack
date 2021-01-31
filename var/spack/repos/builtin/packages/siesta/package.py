@@ -21,6 +21,7 @@ class Siesta(MakefilePackage):
     version('4.1-b4', sha256='19fa19a23adefb9741a436c6b5dbbdc0f57fb66876883f8f9f6695dfe7574fe3',
             url='https://launchpad.net/siesta/4.1/4.1-b4/+download/siesta-4.1-b4.tar.gz')
 
+    version('4.1', branch="rel-4.1")
     version('master',  branch='master')
     version('psml',  branch='psml-support')
 
@@ -52,8 +53,8 @@ class Siesta(MakefilePackage):
 
     depends_on('flook', when='+flook')
 
-    depends_on('xmlf90',  when='@master,psml')
-    depends_on('libpsml', when='@master,psml')
+    depends_on('xmlf90',  when='@master,psml,4.1')
+    depends_on('libpsml', when='@master,psml,4.1')
 
     phases = ['edit', 'build', 'install']
 
@@ -187,6 +188,7 @@ class Siesta(MakefilePackage):
 
         archmake.filter('^#XMLF90_ROOT=', 'XMLF90_ROOT={0}'.format(spec['xmlf90'].prefix))
         archmake.filter('^#PSML_ROOT=', 'PSML_ROOT={0}'.format(spec['libpsml'].prefix))
+
         archmake.filter('^#GRIDXC_ROOT=',
                         'GRIDXC_ROOT={0}\nLIBXC_ROOT={1}'.format(
                         spec['libgridxc'].prefix, spec['libxc'].prefix
@@ -236,7 +238,7 @@ class Siesta(MakefilePackage):
                         archmake.write('{0}\n'.format(line))
             # In case of a modern version, e.g. obtained from Git, the `master-raw`
             # makefile sample is copied and regex-filtered instead:
-            elif (self.spec.satisfies('@master') or self.spec.satisfies('@psml')):
+            else:
                 copy('./ARCH-EXPERIMENTAL/master-raw.make', './arch.make')
                 self.filter_archmake(FileFilter('./arch.make'))
 
